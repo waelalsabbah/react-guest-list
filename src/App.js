@@ -1,9 +1,23 @@
-import React, { useState } from 'react';
+import './Glist.css';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 
 function GuestList() {
   const [guests, setGuests] = useState([]);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+
+  useEffect(() => {
+    // Load the guest list from the API when the component mounts
+    axios
+      .get('http://localhost:4000/api/guests')
+      .then((response) => {
+        setGuests(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching guest list:', error);
+      });
+  }, []);
 
   const addGuest = () => {
     if (firstName.trim() === '' || lastName.trim() === '') {
@@ -26,20 +40,23 @@ function GuestList() {
       addGuest();
     }
   };
+
   const removeGuest = (index) => {
     const updatedGuests = [...guests];
     updatedGuests.splice(index, 1);
     setGuests(updatedGuests);
   };
+
   const toggleAttending = (index) => {
     const updatedGuests = [...guests];
     updatedGuests[index].attending = !updatedGuests[index].attending;
     setGuests(updatedGuests);
   };
+
   return (
-    <div>
+    <div className="guest-list-container">
       <h1>Guest List</h1>
-      <div>
+      <div className="input-container">
         <label htmlFor="firstName">First name:</label>
         <input
           type="text"
@@ -48,7 +65,7 @@ function GuestList() {
           onChange={(e) => setFirstName(e.target.value)}
         />
       </div>
-      <div>
+      <div className="input-container">
         <label htmlFor="lastName">Last name:</label>
         <input
           type="text"
@@ -57,10 +74,12 @@ function GuestList() {
           onChange={(e) => setLastName(e.target.value)}
         />
       </div>
-      <button onClick={addGuest}>Return</button>
-      <ul>
+      <button className="add-button" onClick={addGuest}>
+        Add Guest
+      </button>
+      <ul className="guest-ul">
         {guests.map((guest, index) => (
-          <div key={index} data-test-id="guest">
+          <div key={index} data-test-id="guest" className="guest-item">
             <li>
               {guest.firstName} {guest.lastName} -{' '}
               {guest.attending ? 'Attending' : 'Not Attending'}{' '}
@@ -74,6 +93,7 @@ function GuestList() {
               <button
                 onClick={() => removeGuest(index)}
                 aria-label={`Remove ${guest.firstName} ${guest.lastName}`}
+                className="remove-button"
               >
                 Remove
               </button>
