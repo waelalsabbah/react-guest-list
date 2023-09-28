@@ -1,29 +1,35 @@
 import './Glist.css';
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
-function GuestList() {
+export default function GuestList() {
   const [guests, setGuests] = useState([]);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [guest, getGuests] = useState('');
+  const baseUrl = 'http://localhost:4000';
 
   useEffect(() => {
-    // Load the guest list from the API when the component mounts
-    axios
-      .get('http://localhost:4000/api/guests')
-      .then((response) => {
-        setGuests(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching guest list:', error);
+    async function getGuests() {
+      const response = await fetch(`${baseUrl}/guests`);
+      const allGuests = await response.json();
+      console.log(allGuests);
+    }
+    async function createGuest() {
+      const response = await fetch(`${baseUrl}/guests`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ firstName: 'Karl', lastName: 'Horky' }),
       });
-  }, []);
+      const createdGuest = await response.json();
+    }
+  }, [guests]);
 
   const addGuest = () => {
     if (firstName.trim() === '' || lastName.trim() === '') {
       return;
     }
-
     const newGuest = {
       firstName,
       lastName,
@@ -56,6 +62,7 @@ function GuestList() {
   return (
     <div className="guest-list-container">
       <h1>Guest List</h1>
+
       <div className="input-container">
         <label htmlFor="firstName">First name:</label>
         <input
@@ -101,8 +108,10 @@ function GuestList() {
           </div>
         ))}
       </ul>
+      <div>
+        {' '}
+        <button onClick={() => this.createGuest()}>Create Guest</button>
+      </div>
     </div>
   );
 }
-
-export default GuestList;
